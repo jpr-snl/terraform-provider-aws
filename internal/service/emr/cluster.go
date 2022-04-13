@@ -1149,6 +1149,10 @@ func resourceClusterRead(d *schema.ResourceData, meta interface{}) error {
 
 	atpOut, err := conn.GetAutoTerminationPolicy(termPolInput)
 	if err != nil {
+		// GovCloud doesn't implement GetAutoTerminationPolicy
+		if tfawserr.ErrMessageContains(err, "UnknownOperationException", "Could not find operation GetAutoTerminationPolicy") {
+			return nil
+		}
 		if !tfawserr.ErrMessageContains(err, "ValidationException", "Auto-termination is not available for this account when using this release of EMR") {
 			return fmt.Errorf("error getting auto termination policy: %w", err)
 		}
